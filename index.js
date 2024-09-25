@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import { configDotenv } from "dotenv";
 import poemsRouter from "./routes/poemsRouter.js";
+
 configDotenv();
 const URL = process.env.URL_DB || "";
 const app = express();
@@ -16,14 +17,18 @@ app.use(express.static("public"));
 app.use(bodyParser.json());
 
 app.use("/api/poems", poemsRouter);
+
+// Обработка маршрутов, которые не найдены
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-app.use((err, req, res) => {
+// Обработчик ошибок должен принимать 4 аргумента
+app.use((err, req, res, next) => {
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({ message });
 });
+
 mongoose
   .connect(URL)
   .then(() => {
